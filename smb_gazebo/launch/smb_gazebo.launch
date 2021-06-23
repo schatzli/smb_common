@@ -42,6 +42,7 @@
   <!-- Load parameters -->
   <param name="gazebo/publishing_time_step"     value="$(arg publishing_time_step)"/>
 
+  <remap from="/imu0" to="/versavis/imu"/>
 
   <!-- Load Gazebo world -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
