@@ -25,6 +25,7 @@ imuTopic = "versavis/imu"
 kp = 5.0
 ki = 5.0
 i_max = 5.0
+max_yaw_output = 2.0
 timestampPrevTwistMsg = 0.0
 twistMsgTimeout = 0.5
 imuMsgTimeout = 0.05
@@ -77,15 +78,14 @@ def imuCallback(msg):
     else:
         integratedError += dt * (desired_twist.angular.z - yawRateMeas)
         
-    if integratedError > i_max:
-        integratedError = i_max
-    elif integratedError < -i_max:
-        integratedError = -i_max
+    integratedError = numpy.clip(integratedError, -i_max, i_max)
       
     proportionalAction = kp * (desired_twist.angular.z - yawRateMeas)
     integralAction = ki * integratedError
        
     correctedAngularRateCmd = proportionalAction + integralAction
+
+    correctedAngularRateCmd = numpy.clip(correctedAngularRateCmd, -max_yaw_output, max_yaw_output)
 
     msgOut = deepcopy(desired_twist)
     msgOut.angular.z = correctedAngularRateCmd 
@@ -108,12 +108,14 @@ if __name__ == '__main__':
     kp = rospy.get_param("~kp", kp)
     ki = rospy.get_param("~ki", ki)
     i_max = rospy.get_param("~i_max", i_max)
+    max_yaw_output = rospy.get_param("~max_yaw_output", max_yaw_output)
     #angularVelocityOffset = rospy.get_param("~angular_z_offset")
     #angularVelocityDeadbandWidth = rospy.get_param("~angular_z_deadband_width")
 
     ddynrec.add_variable("kp", "float/double variable", kp, 0.0, 10.0)
     ddynrec.add_variable("ki", "float/double variable", ki, 0.0, 10.0)
     ddynrec.add_variable("i_max", "float/double variable", i_max, 0.0, 5.0)
+    ddynrec.add_variable("max_yaw_output", "float/double variable", max_yaw_output, 0.0, 5.0)
     ddynrec.start(dyn_rec_callback)
 
     print("Launching the angular_twist_controller node.. ")
