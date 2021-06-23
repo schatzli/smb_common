@@ -22,7 +22,7 @@ angularVelocityOffset = 0.7
 angularVelocityDeadbandWidth = 0.2
 
 imuTopic = "versavis/imu"
-kp = 5.0
+kp = 1.0
 ki = 5.0
 i_max = 5.0
 max_yaw_output = 2.0
