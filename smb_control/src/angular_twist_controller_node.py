@@ -96,10 +96,11 @@ def imuCallback(msg):
 
 def dyn_rec_callback(config, level):
     rospy.loginfo("Received reconf call: " + str(config))
-    global kp, ki, i_max
+    global kp, ki, i_max, max_yaw_output
     kp = config["kp"]
     ki = config["ki"]
     i_max = config["i_max"]
+    max_yaw_output = config["max_yaw_output"]
     return config    
     
 if __name__ == '__main__':
