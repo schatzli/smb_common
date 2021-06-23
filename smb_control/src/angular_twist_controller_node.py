@@ -6,11 +6,13 @@ import math
 import tf
 import rospkg
 import rosbag
+from ddynamic_reconfigure_python.ddynamic_reconfigure import DDynamicReconfigure
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Imu
 from copy import deepcopy
 
 
+ddynrec = DDynamicReconfigure("")
 
 twistTopicIn = "/twist_in"
 twistTopicOut = "/twist_out"
@@ -20,9 +22,9 @@ angularVelocityOffset = 0.7
 angularVelocityDeadbandWidth = 0.2
 
 imuTopic = "versavis/imu"
-kp = 0.5
-ki = 0.0
-i_max = 3.0
+kp = 5.0
+ki = 5.0
+i_max = 5.0
 timestampPrevTwistMsg = 0.0
 twistMsgTimeout = 0.5
 imuMsgTimeout = 0.05
@@ -91,16 +93,28 @@ def imuCallback(msg):
     rospy.loginfo_throttle(2, f"yaw_des: {desired_twist.angular.z} yawRateMeas: {yawRateMeas} int_error: {integratedError} dt: {dt}")
     
     correctedTwistPublisher.publish(msgOut)
-    
+
+def dyn_rec_callback(config, level):
+    rospy.loginfo("Received reconf call: " + str(config))
+    global kp, ki, i_max
+    kp = config["kp"]
+    ki = config["ki"]
+    i_max = config["i_max"]
+    return config    
     
 if __name__ == '__main__':
     rospy.init_node('angular_twist_controller')
 
-    kp = rospy.get_param("~kp")
-    ki = rospy.get_param("~ki")
-    i_max = rospy.get_param("~i_max")
+    kp = rospy.get_param("~kp", kp)
+    ki = rospy.get_param("~ki", ki)
+    i_max = rospy.get_param("~i_max", i_max)
     #angularVelocityOffset = rospy.get_param("~angular_z_offset")
     #angularVelocityDeadbandWidth = rospy.get_param("~angular_z_deadband_width")
+
+    ddynrec.add_variable("kp", "float/double variable", kp, 0.0, 10.0)
+    ddynrec.add_variable("ki", "float/double variable", ki, 0.0, 10.0)
+    ddynrec.add_variable("i_max", "float/double variable", i_max, 0.0, 5.0)
+    ddynrec.start(dyn_rec_callback)
 
     print("Launching the angular_twist_controller node.. ")
     #print("Linear scaling factor is %f " % scalingFactorLin)
