@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+	<arg name="twist_topic_in" 				default="/control/smb_diff_drive/cmd_vel_unaugmented"/>
+	<arg name="twist_topic_out" 				default="/control/smb_diff_drive/cmd_vel"/>
+	<arg name="kp" 				        default="0.5"/>
+	<arg name="ki" 				        default="0.5"/>
+	<arg name="i_max" 				        default="5.0"/>
+
+	<node pkg="smb_control" type="angular_twist_controller_node.py"
+		name="angular_twist_controller_node" output="screen">
+		<remap from="/twist_in" 				to="$(arg twist_topic_in)"/>
+		<remap from="/twist_out" 				to="$(arg twist_topic_out)"/>
+		<param name="kp" 					    value="$(arg kp)"/>
+		<param name="ki" 		                value="$(arg ki)"/>
+		<param name="i_max" 		                value="$(arg i_max)"/>
+	</node>
+
+</launch>
