@@ -8,6 +8,7 @@ import rospkg
 import rosbag
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Imu
+from copy import deepcopy
 
 
 
@@ -19,74 +20,77 @@ angularVelocityOffset = 0.7
 angularVelocityDeadbandWidth = 0.2
 
 imuTopic = "versavis/imu"
-yawRateMeas = 0.0
-#yawRateDes = 0.0
 kp = 0.5
 ki = 0.0
 i_max = 3.0
 timestampPrevTwistMsg = 0.0
 twistMsgTimeout = 0.5
+imuMsgTimeout = 0.05
 integratedError = 0.0
-printCounter = 0
-    
+
+desired_twist = Twist()
+last_yawRateDes_received = 0
+last_imu_received = 0
+integratedError = 0
+imu_received = False
 
 def twistCallback(msg):
+    global desired_twist
+    global imu_received
+    global last_yawRateDes_received
+
+    desired_twist = msg
+    last_yawRateDes_received = rospy.get_time()
+    if not imu_received:
+        rospy.logwarn_throttle(5.0, "No imu data received yet, forward incoming twist.")
+        correctedTwistPublisher.publish(msg)
+    
+def imuCallback(msg):
+    global imu_received
+
+    imu_received = True
+
+    yawRateMeas = msg.angular_velocity.z
+    # apply filter?
+
     global timestampPrevTwistMsg
     global integratedError
-    global printCounter
-    twistMsgTimeout
-    yawRateMeas
+    global desired_twist
 
-    dt = rospy.get_time() - timestampPrevTwistMsg
-    yawRateDes = msg.angular.z
-    
-    if dt > twistMsgTimeout:
+    imu_received = rospy.get_time()
+    dt = imu_received - timestampPrevTwistMsg
+    timestampPrevTwistMsg = imu_received
+
+    if imu_received - last_yawRateDes_received > twistMsgTimeout:
         integratedError = 0.0
-        print("Time since last twist msg was too long. Resetting integrated twist to 0.0..")
+        yawRateMeas = 0.0
+        desired_twist = Twist()
+        rospy.logwarn_throttle(2.0, f"No desired twist received for {imu_received - last_yawRateDes_received} seconds. Command 0.0 velocity.")
+
+
+    if dt > imuMsgTimeout:
+        integratedError = 0.0
+        rospy.logwarn_throttle(2.0, "Time since last imu msg was too long. Resetting integrated twist to 0.0.")
+        return
     else:
-        integratedError += dt * (yawRateDes - yawRateMeas)
+        integratedError += dt * (desired_twist.angular.z - yawRateMeas)
         
     if integratedError > i_max:
         integratedError = i_max
     elif integratedError < -i_max:
         integratedError = -i_max
-    
-    timestampPrevTwistMsg = rospy.get_time()
-    
-    feedForwardAction = msg.angular.z
-    proportionalAction = kp * (yawRateDes - yawRateMeas)
+      
+    proportionalAction = kp * (desired_twist.angular.z - yawRateMeas)
     integralAction = ki * integratedError
-    
-    if integralAction > 1.0:
-        integralAction = 1.0
-        print("integral action clipped to 1.0")
-    elif integralAction < -1.0:
-        integralAction = -1.0
-        print("integral action clipped to -1.0")
-    
-   
-    if yawRateMeas == 0.0:
-        print("Seems like imu msgs are not being received. Forwarding original twist commands..")
-        correctedAngularRateCmd = feedForwardAction
-    else:
-        correctedAngularRateCmd = feedForwardAction + proportionalAction + integralAction
+       
+    correctedAngularRateCmd = proportionalAction + integralAction
 
-    msgOut = msg
+    msgOut = deepcopy(desired_twist)
     msgOut.angular.z = correctedAngularRateCmd 
     
-    if printCounter == 10:
-        print("yaw_des: ", yawRateDes, "yawRateMeas: ", yawRateMeas, "int_error: ", integratedError, "dt: ", dt)
-        printCounter = 0
-        
-    printCounter += 1
+    rospy.loginfo_throttle(2, f"yaw_des: {desired_twist.angular.z} yawRateMeas: {yawRateMeas} int_error: {integratedError} dt: {dt}")
     
     correctedTwistPublisher.publish(msgOut)
-    
-    
-def imuCallback(msg):
-    global yawRateMeas
-    yawRateMeas = msg.angular_velocity.z
-    # apply filter?
     
     
 if __name__ == '__main__':
