@@ -110,8 +110,6 @@ if __name__ == '__main__':
     ki = rospy.get_param("~ki", ki)
     i_max = rospy.get_param("~i_max", i_max)
     max_yaw_output = rospy.get_param("~max_yaw_output", max_yaw_output)
-    #angularVelocityOffset = rospy.get_param("~angular_z_offset")
-    #angularVelocityDeadbandWidth = rospy.get_param("~angular_z_deadband_width")
 
     ddynrec.add_variable("kp", "float/double variable", kp, 0.0, 10.0)
     ddynrec.add_variable("ki", "float/double variable", ki, 0.0, 10.0)
@@ -120,10 +118,6 @@ if __name__ == '__main__':
     ddynrec.start(dyn_rec_callback)
 
     print("Launching the angular_twist_controller node.. ")
-    #print("Linear scaling factor is %f " % scalingFactorLin)
-    #print("Angular scaling factor is %f " % scalingFactorAng)
-    #print("Angular velocity offset is %f " % angularVelocityOffset)
-    #print("Angular velocity deadband width is %f " % angularVelocityDeadbandWidth)
 
     rospy.Subscriber(twistTopicIn, Twist, twistCallback)
     rospy.Subscriber(imuTopic, Imu, imuCallback)
