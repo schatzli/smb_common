@@ -119,8 +119,8 @@ if __name__ == '__main__':
 
     print("Launching the angular_twist_controller node.. ")
 
-    rospy.Subscriber(twistTopicIn, Twist, twistCallback)
-    rospy.Subscriber(imuTopic, Imu, imuCallback)
-    correctedTwistPublisher = rospy.Publisher(twistTopicOut, Twist, queue_size=10)
+    rospy.Subscriber(twistTopicIn, Twist, twistCallback, queue_size=1)
+    rospy.Subscriber(imuTopic, Imu, imuCallback, queue_size=1)
+    correctedTwistPublisher = rospy.Publisher(twistTopicOut, Twist, queue_size=1)
     
     rospy.spin()
