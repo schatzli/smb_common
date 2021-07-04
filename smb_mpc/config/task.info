@@ -2,7 +2,8 @@
 model_settings
 {
   recompileLibraries             1         ; put this flag to 1 if dynamic libraries are already generated
-  systemName smb
+  systemName                     smb
+  activateObstacleAvoidance      true
 }
 
 ; DDP settings
@@ -26,8 +27,8 @@ ddp
   maxNumStepsPerSecond          100000
   backwardPassIntegratorType    ODE45
 
-  inequalityConstraintMu        100.0
-  inequalityConstraintDelta     1.1
+  inequalityConstraintMu        0.1
+  inequalityConstraintDelta     1e-2
 
   preComputeRiccatiTerms        true
   useNominalTimeForBackwardPass false
@@ -101,7 +102,7 @@ QPosition
 ; orientation weight matrix
 QOrientation
 {
-  scaling 1e+0
+  scaling 0e+0
 
   (0,0) 0.0  ; x
   (1,1) 0.0  ; y
