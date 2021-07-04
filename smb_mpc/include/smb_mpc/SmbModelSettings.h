@@ -9,17 +9,16 @@
 #include <iostream>
 #include <string>
 
+#include <ocs2_core/misc/LoadData.h>
+
 namespace smb_path_following {
 
-class SmbModelSettings {
- public:
-  SmbModelSettings() : recompileLibraries_(false) {}
-
-  virtual ~SmbModelSettings() = default;
-
+struct SmbModelSettings {
   /** flag to generate dynamic files **/
-  bool recompileLibraries_;
-  std::string systemName_;
+  bool recompileLibraries_ = true;
+  std::string systemName_ = "smb";
+
+  bool activateObstacleAvoidance_ = false;
 
   virtual void loadSettings(const std::string& filename, bool verbose = true);
 };
@@ -28,18 +27,19 @@ inline void SmbModelSettings::loadSettings(const std::string& filename, bool ver
   boost::property_tree::ptree pt;
   boost::property_tree::read_info(filename, pt);
 
-  if (verbose) std::cerr << "\n #### Robot Model Settings:" << std::endl;
-  if (verbose) std::cerr << " #### ==================================================" << std::endl;
-
-  try {
-    recompileLibraries_ = pt.get<bool>("model_settings.recompileLibraries");
-    systemName_ = pt.get<std::string>("model_settings.systemName");
-    if (verbose) std::cerr << " #### recompileLibraries ..... " << recompileLibraries_ << std::endl;
-  } catch (const std::exception& e) {
-    if (verbose) std::cerr << " #### recompileLibraries ..... " << recompileLibraries_ << "\t(default)" << std::endl;
+  if (verbose) {
+    std::cerr << "\n #### Robot Model Settings:";
+    std::cerr << "\n #### ==================================================\n";
   }
 
-  if (verbose) std::cerr << " #### ================================================ ####" << std::endl;
+  ocs2::loadData::loadPtreeValue(pt, recompileLibraries_, "model_settings.recompileLibraries", verbose);
+  ocs2::loadData::loadPtreeValue(pt, systemName_, "model_settings.systemName", verbose);
+
+  ocs2::loadData::loadPtreeValue(pt, activateObstacleAvoidance_, "model_settings.activateObstacleAvoidance", verbose);
+
+  if (verbose) {
+    std::cerr << " #### ==================================================\n" << std::endl;
+  }
 }
 
 }  // namespace smb_path_following
