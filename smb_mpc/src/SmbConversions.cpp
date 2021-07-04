@@ -5,6 +5,8 @@
 
 #include <smb_mpc/SmbConversions.h>
 
+#include "smb_mpc/ObstaclesParameters.h"
+
 using namespace smb_path_following;
 
 // void SmbConversions::writeMpcState(ocs2::vector_t& stateVector,
@@ -91,4 +93,37 @@ void SmbConversions::readMpcInput(
     const ocs2::vector_t &inputVector, geometry_msgs::Twist &twist) {
   twist.linear.x = inputVector[0];
   twist.angular.z = inputVector[1];
+}
+
+visualization_msgs::MarkerArray SmbConversions::toMarkerArray(const std::string& frameId,
+                                                              const ObstaclesParameters& obstaclesParam) {
+  visualization_msgs::MarkerArray obstacleMarkerArray;
+
+  visualization_msgs::Marker obstacleMarker;
+  obstacleMarker.header.frame_id = frameId;
+  obstacleMarker.ns = "smb";
+  obstacleMarker.type = visualization_msgs::Marker::CYLINDER;
+  obstacleMarker.action = visualization_msgs::Marker::ADD;
+  obstacleMarker.pose.orientation.x = 0.0;
+  obstacleMarker.pose.orientation.y = 0.0;
+  obstacleMarker.pose.orientation.z = 0.0;
+  obstacleMarker.pose.orientation.w = 1.0;
+  obstacleMarker.color.a = 1.0;
+  obstacleMarker.color.r = 0.0;
+  obstacleMarker.color.g = 1.0;
+  obstacleMarker.color.b = 0.0;
+
+  for (size_t i = 0; i < obstaclesParam.numberOfObstacles_; i++) {
+    const size_t j = obstaclesParam.numberOfParamsPerObstacle_ * i;
+    obstacleMarker.id = i;
+    obstacleMarker.pose.position.x = obstaclesParam.vectorOfObstacles_(j + 2);
+    obstacleMarker.pose.position.y = obstaclesParam.vectorOfObstacles_(j + 3);
+    obstacleMarker.pose.position.z = obstaclesParam.vectorOfObstacles_(j + 1) / 2;
+    obstacleMarker.scale.x = 2 * (obstaclesParam.vectorOfObstacles_(j));
+    obstacleMarker.scale.y = 2 * (obstaclesParam.vectorOfObstacles_(j));
+    obstacleMarker.scale.z = obstaclesParam.vectorOfObstacles_(j + 1);
+    obstacleMarkerArray.markers.push_back(obstacleMarker);
+  }  // end of i loop
+
+  return obstacleMarkerArray;
 }

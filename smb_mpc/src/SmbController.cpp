@@ -45,6 +45,9 @@ bool SmbController::initialize() {
   optimalPathPublisher_ =
       nh_.advertise<nav_msgs::Path>("optimal_path", 1, false);
 
+  obstacleMarkerPublisher_ =
+      nh_.advertise<visualization_msgs::MarkerArray>("obstacle_visualization_marker", 1, true);
+
   maxLinearVelocity_ =
       nh_.param<double>("max_linear_velocity", maxLinearVelocity_);
   maxAngularVelocity_ =
@@ -213,8 +216,8 @@ void SmbController::resetMpc() {
   nav_msgs::Path emptyPath;
   emptyPath.header.seq = lastSequence_;
   path_ = emptyPath;
-  mmInterface_.resetMpc();
-  mpcInterface_ = std::make_shared<MpcInterface>(*(mmInterface_.mpcPtr_));
+  mmInterface_.getMPC().reset();
+  mpcInterface_ = std::make_shared<MpcInterface>(mmInterface_.getMPC());
 }
 
 void SmbController::joyTwistInverventionCallback(
@@ -327,6 +330,11 @@ bool SmbController::publishRos() {
     optimalTrajectory.poses.push_back(pose);
   }
   optimalPathPublisher_.publish(optimalTrajectory);
+
+  if (mmInterface_.modelSettings().activateObstacleAvoidance_) {
+    const auto msg = SmbConversions::toMarkerArray(controlFrame_, mmInterface_.getObstaclesParameters());
+    obstacleMarkerPublisher_.publish(msg);
+  }
 
   // command line debugging output
   ROS_INFO_STREAM_THROTTLE(

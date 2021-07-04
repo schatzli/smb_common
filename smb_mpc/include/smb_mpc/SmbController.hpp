@@ -73,6 +73,7 @@ protected:
   ros::Publisher currentPosePublisher_;
   ros::Publisher optimalPosePublisher_;
   ros::Publisher optimalPathPublisher_;
+  ros::Publisher obstacleMarkerPublisher_;
 
   ros::NodeHandle nh_;
   tf2_ros::Buffer buffer_;

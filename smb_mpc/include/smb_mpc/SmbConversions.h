@@ -4,14 +4,20 @@
 
 #pragma once
 
+#include <string>
+
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <geometry_msgs/Twist.h>
+#include <visualization_msgs/MarkerArray.h>
 
 #include <ocs2_core/Types.h>
 #include <ocs2_mpc/SystemObservation.h>
 
 namespace smb_path_following {
+
+// forward declaration
+class ObstaclesParameters;
 
 class SmbConversions {
 public:
@@ -31,6 +37,9 @@ public:
 
   // static void writeMpcObservation(ocs2::SystemObservation& observation, const
   // any_measurements::Pose& pose);
+
+  static visualization_msgs::MarkerArray toMarkerArray(const std::string& frameId,
+                                                       const ObstaclesParameters& obstaclesParam);
 };
 
 } // namespace smb_path_following
