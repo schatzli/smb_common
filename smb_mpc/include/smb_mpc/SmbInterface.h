@@ -20,6 +20,7 @@
 #include "smb_mpc/ObstaclesParameters.h"
 #include "smb_mpc/SmbDefinitions.h"
 #include "smb_mpc/SmbModelSettings.h"
+#include "smb_mpc/SmbSynchronizedModule.h"
 
 // ros
 #include <ros/package.h>
@@ -47,7 +48,7 @@ public:
   /** Gets the mpc settings. */
   const ocs2::ddp::Settings& ddpSettings() const { return ddpSettings_; }
 
-  const ObstaclesParameters& getObstaclesParameters() const { return obstaclesParam_; }
+  const SmbSynchronizedModule& getSmbSynchronizedModule() const { return *smbSynchronizedModulePtr_; }
 
   /** Gets a reference to the internal SLQ_MPC. */
   ocs2::MPC_DDP& getMPC() { return *mpcPtr_; }
@@ -64,6 +65,7 @@ private:
   std::unique_ptr<ocs2::ConstraintBase> constraintPtr_;
 
   ObstaclesParameters obstaclesParam_;
+  std::shared_ptr<SmbSynchronizedModule> smbSynchronizedModulePtr_;
 
   std::unique_ptr<ocs2::MPC_DDP> mpcPtr_;
 };

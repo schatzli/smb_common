@@ -332,7 +332,8 @@ bool SmbController::publishRos() {
   optimalPathPublisher_.publish(optimalTrajectory);
 
   if (mmInterface_.modelSettings().activateObstacleAvoidance_) {
-    const auto msg = SmbConversions::toMarkerArray(controlFrame_, mmInterface_.getObstaclesParameters());
+    const auto& obstaclesParameters = mmInterface_.getSmbSynchronizedModule().getObstaclesParameters();
+    const auto msg = SmbConversions::toMarkerArray(controlFrame_, obstaclesParameters);
     obstacleMarkerPublisher_.publish(msg);
   }
 

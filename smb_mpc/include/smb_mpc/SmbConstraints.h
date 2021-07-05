@@ -13,7 +13,7 @@
 #include <ocs2_core/Types.h>
 #include <ocs2_core/constraint/ConstraintBase.h>
 
-#include "smb_mpc/ObstaclesParameters.h"
+#include "smb_mpc/SmbSynchronizedModule.h"
 
 namespace smb_path_following {
 
@@ -24,7 +24,8 @@ class SmbConstraints final : public ocs2::ConstraintBase {
   using matrix_t = ocs2::matrix_t;
 
   /** Constructor */
-  SmbConstraints(ObstaclesParameters obstaclesParam) : obstaclesParam_(std::move(obstaclesParam)) {}
+  SmbConstraints(const SmbSynchronizedModule& smbSynchronizedModule)
+  : smbSynchronizedModulePtr_(&smbSynchronizedModule) {}
 
   ~SmbConstraints() override = default;
   SmbConstraints* clone() const override { return new SmbConstraints(*this); }
@@ -43,10 +44,10 @@ class SmbConstraints final : public ocs2::ConstraintBase {
     vector_t weight;
     std::tie(weight, approx.f(0)) = getDistance(t, x);
 
-    for (size_t i = 0; i < obstaclesParam_.numberOfObstacles_; i++) {
-      const size_t j = obstaclesParam_.numberOfParamsPerObstacle_ * i;
-      approx.dfdx(0) += weight(i) * 2.0 * (x(0) - obstaclesParam_.vectorOfObstacles_(j + 2));
-      approx.dfdx(1) += weight(i) * 2.0 * (x(1) - obstaclesParam_.vectorOfObstacles_(j + 3));
+    for (size_t i = 0; i < smbSynchronizedModulePtr_->getObstaclesParameters().numberOfObstacles_; i++) {
+      const size_t j = smbSynchronizedModulePtr_->getObstaclesParameters().numberOfParamsPerObstacle_ * i;
+      approx.dfdx(0) += weight(i) * 2.0 * (x(0) - smbSynchronizedModulePtr_->getObstaclesParameters().vectorOfObstacles_(j + 2));
+      approx.dfdx(1) += weight(i) * 2.0 * (x(1) - smbSynchronizedModulePtr_->getObstaclesParameters().vectorOfObstacles_(j + 3));
     }
 
     // ignore the second order derivatives since it makes the Hessian matrix indefinite
@@ -60,15 +61,15 @@ class SmbConstraints final : public ocs2::ConstraintBase {
   SmbConstraints(const SmbConstraints& other) = default;
 
   std::pair<vector_t, scalar_t> getDistance(scalar_t t, const vector_t& x) {
-    vector_t distance(obstaclesParam_.numberOfObstacles_);
-    for (size_t i = 0; i < obstaclesParam_.numberOfObstacles_; i++) {
-      const int j = obstaclesParam_.numberOfParamsPerObstacle_ * i;
-      distance(i) = std::pow((x(0) - obstaclesParam_.vectorOfObstacles_(j + 2)), 2) +
-                    std::pow((x(1) - obstaclesParam_.vectorOfObstacles_(j + 3)), 2) -
-                    std::pow((obstaclesParam_.vectorOfObstacles_(j) + smbRadius_), 2);
+    vector_t distance(smbSynchronizedModulePtr_->getObstaclesParameters().numberOfObstacles_);
+    for (size_t i = 0; i < smbSynchronizedModulePtr_->getObstaclesParameters().numberOfObstacles_; i++) {
+      const int j = smbSynchronizedModulePtr_->getObstaclesParameters().numberOfParamsPerObstacle_ * i;
+      distance(i) = std::pow((x(0) - smbSynchronizedModulePtr_->getObstaclesParameters().vectorOfObstacles_(j + 2)), 2) +
+                    std::pow((x(1) - smbSynchronizedModulePtr_->getObstaclesParameters().vectorOfObstacles_(j + 3)), 2) -
+                    std::pow((smbSynchronizedModulePtr_->getObstaclesParameters().vectorOfObstacles_(j) + smbRadius_), 2);
     }
 
-    const vector_t minDistance = distance.minCoeff() * vector_t::Ones(obstaclesParam_.numberOfObstacles_);
+    const vector_t minDistance = distance.minCoeff() * vector_t::Ones(smbSynchronizedModulePtr_->getObstaclesParameters().numberOfObstacles_);
     const vector_t distanceNormalized = -10.0 * (distance - minDistance);
     const vector_t expDistance = distanceNormalized.array().exp();
     const vector_t weight  = expDistance / expDistance.sum();
@@ -82,7 +83,7 @@ class SmbConstraints final : public ocs2::ConstraintBase {
   }
 
   const ocs2::scalar_t smbRadius_ = 0.3;
-  ObstaclesParameters obstaclesParam_;
+  const SmbSynchronizedModule* smbSynchronizedModulePtr_;
 };
 
 } // namespace smb_path_following

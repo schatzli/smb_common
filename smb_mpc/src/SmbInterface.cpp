@@ -54,9 +54,10 @@ SmbInterface::SmbInterface() {
   // Constraints
   if (modelSettings_.activateObstacleAvoidance_) {
     const std::string obstacleFile = taskFilePath + "/obstacles.info";
-    obstaclesParam_.loadSettings(obstacleFile, "obstacles_parameters");
-    constraintPtr_.reset(new SmbConstraints(obstaclesParam_));
-    //  constraintPtr_.reset(new ocs2::ConstraintBase);
+    ObstaclesParameters obstaclesParam;
+    obstaclesParam.loadSettings(obstacleFile, "obstacles_parameters");
+    smbSynchronizedModulePtr_.reset(new SmbSynchronizedModule(std::move(obstaclesParam)));
+    constraintPtr_.reset(new SmbConstraints(*smbSynchronizedModulePtr_));
   } else {
     constraintPtr_.reset(new ocs2::ConstraintBase);
   }
@@ -67,6 +68,11 @@ SmbInterface::SmbInterface() {
   // MPC
   mpcPtr_.reset(new ocs2::MPC_DDP(ddpSmbRolloutPtr_.get(), dynamicsPtr_.get(), constraintPtr_.get(),
                                   costPtr_.get(), operatingPointPtr_.get(), ddpSettings_, mpcSettings_));
+
+  // set SynchronizedModules
+  if (modelSettings_.activateObstacleAvoidance_) {
+    mpcPtr_->getSolverPtr()->setSynchronizedModules({smbSynchronizedModulePtr_});
+  }
 }
 
 } // namespace smb_path_following
