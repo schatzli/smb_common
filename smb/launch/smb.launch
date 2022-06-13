@@ -25,14 +25,13 @@
     </include>
   </group>
 
-  <group ns="odometry" if="$(arg use_lidar_odometry)">
+  <group ns="Localization/Odometry" if="$(arg use_lidar_odometry)">
     <node pkg="odometry_conversion" type="odometry_conversion_node" name="lidar_odometry_conversion">
       <param name="in_odom_frame" value="rslidar"/>
       <param name="in_sensor_frame" value="imu"/>
       <param name="out_odom_frame" value="lidar_odom_base"/>
       <param name="out_sensor_frame" value="base_link"/>
       <remap from="/camera/odom/sample" to="/msf_core/odometry"/>
-      <param name="capability_group" value="Perception/Lidar"/>
     </node>
     <include file="$(find smb_slam)/launch/compslam/smb_cmpslam.launch">
       <arg name="launch_rviz" value="false"/>
@@ -40,13 +39,12 @@
     </include>
   </group>
 
-  <group ns="odometry" unless="$(arg use_lidar_odometry)">
+  <group ns="Localization/Odometry" unless="$(arg use_lidar_odometry)">
     <node pkg="odometry_conversion" type="odometry_conversion_node" name="tracking_camera_odometry_conversion">
       <param name="in_odom_frame" value="camera_pose_frame"/>
       <param name="in_sensor_frame" value="camera_pose_frame"/>
       <param name="out_odom_frame" value="tracking_camera_odom"/>
       <param name="out_sensor_frame" value="base_link"/>
-      <param name="capability_group" value="Perception/Tracking_camera"/>
     </node>
   </group>
 

@@ -28,7 +28,5 @@
   </node>
 
   <!-- Track local plan -->
-  <node name="mpc_standalone_path_publisher" type="mpc_path_publisher.py" pkg="smb_mpc" ns="smb_mpc" unless="$(arg track_local_plan)" output="screen" >
-      <param name="capability_group" value="Control/High_Level_Control"/>
-  </node>
+  <node name="mpc_standalone_path_publisher" type="mpc_path_publisher.py" pkg="smb_mpc" ns="Control/High_Level_Control/smb_mpc" unless="$(arg track_local_plan)" output="screen" />
 </launch>

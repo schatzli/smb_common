@@ -8,10 +8,14 @@
         <remap from="msf_updates/transform_input" to="/transform_aft_mapped_to_init_CORRECTED" />
         <!-- Params -->
         <rosparam file="$(find smb_msf)/param/smb_msf_params.yaml" command="load"/>
+        <param name="capability_group" value="Localization/State"/>
+    </node>
     </node>
     <!-- Initialize service -->
-    <node pkg="rosservice" type="rosservice" name="initializer" args="call --wait /msf_smb/pose_sensor/initialize_msf_scale 1.0"/>
-
-      <node pkg="tf" type="static_transform_publisher" name="imu_to_base" respawn="true" args="-0.255 0.024 -0.179 0 0 0 state base_link 100" if="$(arg launch_state_to_base_link_publisher)"/>
-
+    <node pkg="rosservice" type="rosservice" name="initializer" args="call --wait /msf_smb/pose_sensor/initialize_msf_scale 1.0">
+        <param name="capability_group" value="Localization/State"/>
+    </node>
+    <node pkg="tf" type="static_transform_publisher" name="imu_to_base" respawn="true" args="-0.255 0.024 -0.179 0 0 0 state base_link 100" if="$(arg launch_state_to_base_link_publisher)">
+        <param name="capability_group" value="Localization/State"/>
+    </node>
 </launch>

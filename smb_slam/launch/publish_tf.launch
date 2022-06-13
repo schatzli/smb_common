@@ -9,6 +9,7 @@
 	<node pkg="smb_slam" type="smb_tf_publisher.py"
 		name="smb_tf_publisher" output="screen" if="$(arg launch_odometry_tf_publisher)">
 		<param name="odometry_frame" value="$(arg odometry_frame)"/>
+		<param name="capability_group" value="Localization/SLAM"/>
 	</node>
 
 	<!-- Publish robot state (joints) as TF -->
@@ -17,7 +18,7 @@
 		<param name="use_tf_static"     value="true"/>
 		<param name="tf_prefix"         value=""/>
 		<remap from="robot_description" to="$(arg description_name)"/>
-		<param name="capability_group" value="Localization/TF"/>
+		<param name="capability_group" value="Localization/State"/>
 	</node>
 
 </launch>

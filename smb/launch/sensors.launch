@@ -23,7 +23,7 @@
   <!-- Robosense LiDAR -->
   <group if="$(arg launch_lidar)" >
     <node  name="rslidar_sdk_node" pkg="rslidar_sdk" type="rslidar_sdk_node" output="screen">
-    <param name="capability_group" value="Perception"/>
+    <param name="capability_group" value="Perception/Lidar"/>
     </node>
   </group>
 
@@ -81,9 +81,10 @@
             output="screen"
             required="true" >
          <param name="num_worker_threads" value="4" />
+         <param name="capability_group" value="Localization/IMU"/>
       </node>
 
-    <group ns="$(arg camera_name)_$(arg camera_type)_0" >
+    <group ns="Localization/IMU/$(arg camera_name)_$(arg camera_type)_0" >
       <!-- nodelet manager -->
       <!-- camera driver nodelet -->
       <node pkg="nodelet" type="nodelet" name="camera_nodelet"
@@ -118,7 +119,7 @@
         <!-- Analog related config -->
         <param name="auto_gain" value="Continuous" />
         <param name="auto_white_balance" value="Continuous" />
-        <param name="capability_group" value="Localization/IMU"/>
+        <!--param name="capability_group" value="Localization/IMU"/-->
       </node>
       <node pkg="nodelet" type="nodelet" name="compile_nodelet_cam0"
               args="load versavis/VersaVISSynchronizerNodelet /$(arg camera_manager)"
@@ -127,7 +128,7 @@
         <param name="driver_topic" type="string" value="/$(arg camera_name)_$(arg camera_type)_0/image_numbered" />
         <param name="versavis_topic" type="string" value="/versavis/cam0/" />
         <param name="imu_offset_us" type="int" value="0"/>
-        <param name="capability_group" value="Localization/IMU"/>
+        <!--param name="capability_group" value="Localization/IMU"/-->
       </node>
     </group>
 
