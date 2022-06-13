@@ -30,7 +30,9 @@
        an extra transformation. Be sure to set the calibration and the topic
        corretly in the icp_localization/config/param.yaml file -->
   <group unless="$(arg use_lidar_odometry)">
-    <node pkg="tf" type="static_transform_publisher" name="odom_source_to_base_link" respawn="true" args="-0.309 -0.008 -0.351 0 0 0 odom_source base_link 100"/>
+    <node pkg="tf" type="static_transform_publisher" name="odom_source_to_base_link" respawn="true" args="-0.309 -0.008 -0.351 0 0 0 odom_source base_link 100">
+        <param name="capability_group" value="Perception/Lidar"/>
+    </node>
 
     <include file="$(find icp_localization)/launch/icp_node.launch">
       <arg name="launch_rviz" value="$(arg launch_rviz)"/>

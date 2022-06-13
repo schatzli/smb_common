@@ -14,5 +14,6 @@
           -pose_graph_filename $(arg pose_graph_filename)
           -output_file_prefix $(find smb_slam)/maps/$(arg map_name)"
       output="screen">
+      <param name="capability_group" value="Localization/SLAM"/>
   </node>
 </launch>

@@ -2,6 +2,8 @@
 <launch>
 
   <node name="rviz" pkg="rviz" type="rviz" required="true"
-    args="-d $(find smb_slam)/rviz/cartographer.rviz" />
+    args="-d $(find smb_slam)/rviz/cartographer.rviz" >
+    <param name="capability_group" value="Visualization"/>
+  </node>
 
 </launch>

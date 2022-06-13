@@ -33,6 +33,7 @@
   </include>
 
   <node name="rviz_compslam_smb" pkg="rviz" type="rviz" args="-d $(find smb_slam)/rviz/$(arg rviz_config)" if="$(arg launch_rviz)">
+      <param name="capability_group" value="Visualization"/>
   </node>
 
   <include file="$(find smb_slam)/launch/compslam/pointcloud_stitcher.launch" if="$(arg stitch_pointclouds)">

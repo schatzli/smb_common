@@ -31,10 +31,12 @@
 
 
   <node name="rviz_slam_smb" pkg="rviz" type="rviz" args="-d $(find smb_slam)/rviz/$(arg rviz_config)" if="$(arg launch_rviz)">
+      <param name="capability_group" value="Visualization"/>
   </node>
 
   <node pkg="slam_toolbox" type="sync_slam_toolbox_node" name="slam_toolbox" output="screen" launch-prefix="" if="$(arg run_slam)">
     <rosparam command="load" file="$(arg config_file_path)" />
+    <param name="capability_group" value="Localization/SLAM"/>
   </node>
 
 

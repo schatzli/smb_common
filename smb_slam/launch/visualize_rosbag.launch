@@ -18,6 +18,7 @@
   </include>
 
   <node name="rviz_slam_smb" pkg="rviz" type="rviz" args="-d $(find smb_slam)/rviz/$(arg rviz_config)" if="true">
+      <param name="capability_group" value="Visualization"/>
   </node>
 
   <include file="$(find smb_slam)/launch/pointcloud_to_laserscan.launch" if="$(arg publish_laserscan)">

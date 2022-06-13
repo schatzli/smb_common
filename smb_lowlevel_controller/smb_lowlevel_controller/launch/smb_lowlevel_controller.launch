@@ -21,12 +21,15 @@
     <param name="controller_namespace"       value="$(arg controller_namespace)"/>
     <param name="command_smb"                value="$(arg command_smb)"/>
     <remap from="robot_description"          to="$(arg description_name)"/>
+    <param name="capability_group" value="Control/Low_Level_Control"/>
   </node>
 
 
     <rosparam command="load" ns="$(arg controller_namespace)" file="$(find smb_lowlevel_controller)/config/controllers.yaml"/>
   <group if="$(arg enable_controllers)">
-    <node name="lowlevel_controller_spawner" pkg="controller_manager" type="spawner" output="screen" args="$(arg controller_namespace)/LF_WHEEL_velocity_controller $(arg controller_namespace)/RF_WHEEL_velocity_controller " />
+    <node name="lowlevel_controller_spawner" pkg="controller_manager" type="spawner" output="screen" args="$(arg controller_namespace)/LF_WHEEL_velocity_controller $(arg controller_namespace)/RF_WHEEL_velocity_controller " >
+     <param name="capability_group" value="Control/Low_Level_Control"/>
+  </node>
   </group>
 
 </launch>

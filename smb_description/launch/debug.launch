@@ -33,6 +33,7 @@
     <param name="rate"              value="100"/>
     <remap from="robot_description" to="$(arg description_name)"/>
     <remap from="joint_states"      to="$(arg joint_states_topic)"/>
+    <param name="capability_group" value="Debug"/>
   </node>
 
   <!-- Publish robot state (joints) as TF -->
@@ -42,11 +43,14 @@
     <param name="tf_prefix"         value="$(arg tf_prefix)"/>
     <remap from="robot_description" to="$(arg description_name)"/>
     <remap from="joint_states"      to="$(arg joint_states_topic)"/>
+    <param name="capability_group" value="Debug"/>
   </node>
 
   <!-- Open Rviz -->
   <node name="rviz" pkg="rviz" type="rviz"
   args="-d $(find smb_description)/rviz/smb_description.rviz"
-  output="screen"/>
+  output="screen">
+      <param name="capability_group" value="Visualization"/>
+  </node>
 
 </launch>

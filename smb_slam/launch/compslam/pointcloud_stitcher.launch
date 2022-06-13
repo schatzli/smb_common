@@ -10,6 +10,7 @@
         <param name="input_cloud_topic" value="/velodyne_cloud_registered"/>
         <param name="accumulate_on_startup" value="true"/>
         <param name="output_path" value="$(find smb_slam)/maps/$(arg map_name).pcd"/>
+        <param name="capability_group" value="Perception/Lidar"/>
     </node>
     
 
