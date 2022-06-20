@@ -30,7 +30,7 @@
             <param name="use_inf"               value="$(arg use_inf)"/>
             <param name="inf_epsilon"           value="$(arg inf_epsilon)"/>
             <param name="concurrency_level"     value="1"/>
-            <param name="capability_group" value="Perception/Lidar"/>
+            <param name="capability_group" value="perception/simulation/lidar"/>
 
             # Concurrency level, affects number of pointclouds queued for processing and number of threads used
             # 0 : Detect number of cores

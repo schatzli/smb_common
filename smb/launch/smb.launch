@@ -25,7 +25,7 @@
     </include>
   </group>
 
-  <group ns="Localization/Odometry" if="$(arg use_lidar_odometry)">
+  <group ns="odometry" if="$(arg use_lidar_odometry)">
     <node pkg="odometry_conversion" type="odometry_conversion_node" name="lidar_odometry_conversion">
       <param name="in_odom_frame" value="rslidar"/>
       <param name="in_sensor_frame" value="imu"/>
@@ -40,7 +40,7 @@
     </include>
   </group>
 
-  <group ns="Localization/Odometry" unless="$(arg use_lidar_odometry)">
+  <group ns="odometry" unless="$(arg use_lidar_odometry)">
     <node pkg="odometry_conversion" type="odometry_conversion_node" name="tracking_camera_odometry_conversion">
       <param name="in_odom_frame" value="camera_pose_frame"/>
       <param name="in_sensor_frame" value="camera_pose_frame"/>

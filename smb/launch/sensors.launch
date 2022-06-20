@@ -23,7 +23,7 @@
   <!-- Robosense LiDAR -->
   <group if="$(arg launch_lidar)" >
     <node  name="rslidar_sdk_node" pkg="rslidar_sdk" type="rslidar_sdk_node" output="screen">
-    <param name="capability_group" value="Perception/Lidar"/>
+    <param name="capability_group" value="hardware/sensor/lidar"/>
     </node>
   </group>
 
@@ -84,7 +84,7 @@
          <param name="capability_group" value="hardware/sensor/imu"/>
       </node>
 
-    <group ns="Localization/IMU/$(arg camera_name)_$(arg camera_type)_0" >
+    <group ns="$(arg camera_name)_$(arg camera_type)_0" >
       <!-- nodelet manager -->
       <!-- camera driver nodelet -->
       <node pkg="nodelet" type="nodelet" name="camera_nodelet"
