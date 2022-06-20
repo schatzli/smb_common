@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <!-- Autonomous Navigation in Simulation  -->
+    <include file="$(find smb_gazebo)/launch/sim.launch">
+        <arg name="launch_gazebo_gui"            value="true"/>
+        <arg name="keyboard_teleop"            value="true"/>
+    </include>
+    <include file="$(find smb_navigation)/launch/navigate2d_ompl.launch">
+        <arg name="sim"            value="true"/>
+        <arg name="global_frame"            value="tracking_camera_odom"/>
+    </include>
+</launch>
