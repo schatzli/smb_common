@@ -3,7 +3,7 @@
   <arg name="joystick" default="false"/>
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find smb_opc)/rviz/smb_vis.rviz"
     output="screen">
-    <param name="capability_group" value="visualization/simulation"/>
+    <param name="capability_group" value="simulation/visualization"/>
   </node>
 
   <include file="$(find smb_control)/launch/teleop.launch" if="$(arg joystick)">

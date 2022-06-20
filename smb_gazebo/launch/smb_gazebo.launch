@@ -59,11 +59,11 @@
     args="-param $(arg description_name) -urdf -model $(arg robot_model_name) -x $(arg x)
       -y $(arg y) -z $(arg z) -R $(arg roll) -P $(arg pitch) -Y $(arg yaw)"
     output="screen">
-      <param name="capability_group" value="visualization/simulation"/>
+      <param name="capability_group" value="simulation/gazebo"/>
   </node>
 
   <!-- Publish camera odometry tf-->
   <node pkg="odometry_conversion" type="odometry_conversion_node" name="tracking_camera_odometry_conversion">
-        <param name="capability_group" value="localization/simulation/odometry"/>
+        <param name="capability_group" value="simulation/gazebo"/>
   </node>
 </launch>
