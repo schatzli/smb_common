@@ -18,7 +18,7 @@
 		<param name="use_tf_static"     value="true"/>
 		<param name="tf_prefix"         value=""/>
 		<remap from="robot_description" to="$(arg description_name)"/>
-		<param name="capability_group" value="Localization/State"/>
+		<param name="capability_group" value="localization/simulation"/>
 	</node>
 
 </launch>

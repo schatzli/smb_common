@@ -32,6 +32,7 @@
       <param name="out_odom_frame" value="lidar_odom_base"/>
       <param name="out_sensor_frame" value="base_link"/>
       <remap from="/camera/odom/sample" to="/msf_core/odometry"/>
+      <param name="capability_group" value="localization/simulation/odometry"/>
     </node>
     <include file="$(find smb_slam)/launch/compslam/smb_cmpslam.launch">
       <arg name="launch_rviz" value="false"/>
@@ -45,6 +46,7 @@
       <param name="in_sensor_frame" value="camera_pose_frame"/>
       <param name="out_odom_frame" value="tracking_camera_odom"/>
       <param name="out_sensor_frame" value="base_link"/>
+      <param name="capability_group" value="localization/simulation/odometry"/>
     </node>
   </group>
 
