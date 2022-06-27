@@ -12,7 +12,8 @@
 
     <xacro:property name="mono_update_rate"		value="30"/>
     <xacro:property name="mono_link"  			value="mono_link"/>
-    <xacro:property name="mono_topic" 			value="/mono/cam0/image_raw"/>
+    <xacro:property name="mono_topic" 			value="/versavis/cam0/slow/image_raw"/>
+    <xacro:property name="mono_topic_info" 			value="/versavis/cam0/slow/camera_info"/>
 
 
     <link name="${mono_link}">
@@ -81,7 +82,7 @@
           <updateRate>0.0</updateRate>
           <cameraName>mono_cam</cameraName>
           <imageTopicName>${mono_topic}</imageTopicName>
-          <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+          <cameraInfoTopicName>${mono_topic_info}</cameraInfoTopicName>
           <frameName>${mono_link}</frameName>
           <hackBaseline>0.07</hackBaseline>
           <distortionK1>0.0</distortionK1>

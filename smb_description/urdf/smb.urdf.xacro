@@ -187,11 +187,12 @@
 
         <!-- <xacro:GPS base_link="${base_link_name}" simulation="${simulation}"/> -->
 
-        <!-- <xacro:mono_cam base_link="${base_link_name}" simulation="${simulation}"/>
+        <xacro:mono_cam base_link="${base_link_name}" simulation="${simulation}"/>
+        <!-- 
         <xacro:blackfly_cam id="0" base_link="${base_link_name}" simulation="${simulation}">
             <origin xyz="0.29082 0.04458 ${0.0955 + chassisHeight/2.0}" rpy="0 0 0" />
         </xacro:blackfly_cam>
-
+        
         <xacro:blackfly_cam id="1" base_link="${base_link_name}" simulation="${simulation}">
             <origin xyz="0.29082 -0.04542 ${0.0955 + chassisHeight/2.0}" rpy="0 0 0" />
         </xacro:blackfly_cam>
