@@ -18,6 +18,7 @@
 #include <math.h> //For M_PI
 #include <boost/circular_buffer.hpp>
 #include <std_msgs/Float64MultiArray.h>
+#include <geometry_msgs/Twist.h>
 
 #include <smb_driver/auxiliaries/interProcessCommunication.h>
 
@@ -28,6 +29,11 @@
 //#include <smb_common/SmbModes.h>
 
 #include<chrono>
+
+// Define values for RC twist publisher
+#define RC_UPPER_LIMIT 10
+#define RC_LOWER_LIMIT -10
+#define RC_MAX_COUNT 8
 
 //Motor one is the LEFT one
 //Both wheel speeds and torques are handled such that positive values are in the forward direction (away from the power switch)
@@ -54,7 +60,7 @@ public:
     };
 
     //When sendCommands is false, commands aren't sent to the motor controller, only base measurements are received
-    SmbController(std::string port, ros::NodeHandle &nh, size_t vecSize = 10, bool sendCommands = true);
+    SmbController(std::string port, ros::NodeHandle &nh, size_t vecSize = 10, bool sendCommands = true, double lin_vel_scale = 1, double ang_vel_scale = 1);
 
     ~SmbController();
 
@@ -91,6 +97,7 @@ private:
 
     bool readWheelSpeeds();
     bool readBatteryVoltage();
+    bool readRCInputs();
 
     const bool sendCommands_;
 
@@ -111,6 +118,13 @@ private:
     double leftMotorSpeed_ = 0; //[rad/sec]
     double rightMotorSpeed_ = 0; //[rad/sec]
     double batteryVoltage_ = 0; //[volts]
+
+    // Joystick axes
+    float x_rc_ = 0.0;
+    float y_rc_ = 0.0;
+    double lin_vel_scale_, ang_vel_scale_;
+    unsigned int rc_count = 0;
+
     HYAMBModes mode_ = OPEN_LOOP;
 
     double des_velocity_motor1_ = 0;
@@ -156,6 +170,7 @@ private:
 
     ros::NodeHandle &nh_;
     ros::Publisher wheelSpeedPub_;
+    ros::Publisher rcTwistPub_;
     std_msgs::Float64MultiArray wheelSpeedMsg_;
 
     //Convert RPM to rad/sec

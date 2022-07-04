@@ -80,7 +80,11 @@ void SmbHWInterface::setDriverMode(SmbMode mode){
       bool command_smb;
       private_nh_.param<std::string>("port", port, "/dev/ttySMB");
       private_nh_.param<bool>("command_smb", command_smb, true);
-      smb_ = std::make_shared<smb_driver::SmbController>(port, private_nh_, 10, command_smb);
+
+      // RC velocity scale
+      private_nh_.param<double>("smb/lin_vel_scale", lin_vel_scale, 1.5);
+      private_nh_.param<double>("smb/ang_vel_scale", ang_vel_scale, 1.5);
+      smb_ = std::make_shared<smb_driver::SmbController>(port, private_nh_, 10, command_smb, lin_vel_scale, ang_vel_scale);
       registerControlInterfaces();
 
       // TODO(oharley): expose a method to set the desiredControlMode_
@@ -200,7 +204,7 @@ bool reglimits = ((urdf_limits_ok && urdf_soft_limits_ok) || (rosparam_limits_ok
 
   void SmbHWInterface::read(const ros::Time &time, const ros::Duration& elapsedTime) {
     std::scoped_lock lock{smbDriverMutex_};
-    if (!smb_->getWheelSpeeds(wheels_[1].vel, wheels_[0].vel, controllerTimeoutUs_)) {
+    if (!smb_->getWheelSpeeds(wheels_[0].vel, wheels_[1].vel, controllerTimeoutUs_)) {
       ROS_WARN_STREAM("[SmbHWInterface] Failed to get wheel speeds.");
     } else {
       wheels_[0].pos += wheels_[0].vel * elapsedTime.toSec();

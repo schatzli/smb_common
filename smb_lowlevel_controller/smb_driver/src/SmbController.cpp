@@ -14,12 +14,14 @@
 
 namespace smb_driver {
 
-SmbController::SmbController(std::string port, ros::NodeHandle &nh, size_t vecSize, bool sendCommands) :
+SmbController::SmbController(std::string port, ros::NodeHandle &nh, size_t vecSize, bool sendCommands, double lin_vel_scale, double ang_vel_scale) :
         sendCommands_(sendCommands),
         vecSize_(vecSize),
         stopAcquisition_(false),
         port_(port),
-        nh_(nh)
+        nh_(nh),
+        lin_vel_scale_(lin_vel_scale),
+        ang_vel_scale_(ang_vel_scale)
 {
   rpmToRps_ = 2.0 * M_PI / 60.0;
 
@@ -28,6 +30,9 @@ SmbController::SmbController(std::string port, ros::NodeHandle &nh, size_t vecSi
 
   wheelSpeedPub_ = nh_.advertise<std_msgs::Float64MultiArray>("/wheelSpeeds", 1);
 
+  rcTwistPub_ = nh_.advertise<geometry_msgs::Twist>("/rc_twist", 1);
+
+  //interchange wheel labels
   wheelSpeedMsg_.layout.dim.resize(1);
   wheelSpeedMsg_.layout.dim[0].label = "t leftSpeed rightSpeed";
   wheelSpeedMsg_.layout.dim[0].size = 1;
@@ -61,9 +66,9 @@ bool SmbController::readWheelSpeeds() {
     
     int leftSpeedResult, leftSpeedStatus = -1;
     double leftSpeed;
-    leftSpeedStatus = serialDevice->GetValue(_S, 1, leftSpeedResult);
+    leftSpeedStatus = serialDevice->GetValue(_S, 2, leftSpeedResult);
     if(leftSpeedStatus == RQ_SUCCESS) {
-        leftSpeed = leftSpeedResult;
+        leftSpeed = -leftSpeedResult;
         leftSpeed *= rpmToRps_;
     }
     else {
@@ -73,9 +78,9 @@ bool SmbController::readWheelSpeeds() {
 
     int rightSpeedResult, rightSpeedStatus = -1;
     double rightSpeed;
-    rightSpeedStatus = serialDevice->GetValue(_S, 2, rightSpeedResult);
+    rightSpeedStatus = serialDevice->GetValue(_S, 1, rightSpeedResult);
     if(rightSpeedStatus == RQ_SUCCESS) {
-        rightSpeed = -rightSpeedResult; //Minus so that positive speed is in forward direction
+        rightSpeed = rightSpeedResult; //Minus so that positive speed is in forward direction
         rightSpeed *= rpmToRps_;
     }
     else {
@@ -93,6 +98,7 @@ bool SmbController::readWheelSpeeds() {
 
     acquireMutex(dataMutex_, 0);
 
+    // not sure if to change?
     if (leftSpeedStatus == RQ_SUCCESS)
         leftMotorSpeed_ = leftSpeed;
     if(rightSpeedStatus == RQ_SUCCESS)
@@ -124,6 +130,40 @@ bool SmbController::readBatteryVoltage() {
         batteryVoltage_ = batteryVoltage;
 
     releaseMutex(dataMutex_);
+
+    return res;
+}
+
+bool SmbController::readRCInputs() {
+    bool res = true;
+    int channel_1, channel_2 = -1;
+    double batteryVoltage;
+    if(serialDevice->GetValue(_PIC, 1, channel_1) != RQ_SUCCESS){
+      res = false;
+    }
+    if(serialDevice->GetValue(_PIC, 2, channel_2) != RQ_SUCCESS){
+      res = false;
+    }
+    if((channel_1 < RC_UPPER_LIMIT && channel_1 > RC_LOWER_LIMIT) && (channel_2 < RC_UPPER_LIMIT && channel_2 > RC_LOWER_LIMIT)){
+      if(rc_count < RC_MAX_COUNT){
+        ++rc_count;
+        geometry_msgs::Twist twistMsg;
+        twistMsg.linear.x = 0.0;     
+        twistMsg.angular.z = 0.0;
+
+        rcTwistPub_.publish(twistMsg);
+      }
+    }else{
+      rc_count = 0;
+      x_rc_ = channel_1 / 1000.0 - channel_2 / 1000.0;
+      y_rc_ = -channel_1 / 1000.0 - channel_2 / 1000.0;
+
+      geometry_msgs::Twist twistMsg;
+      twistMsg.linear.x = x_rc_ * lin_vel_scale_;     
+      twistMsg.angular.z = -y_rc_ * ang_vel_scale_;
+
+      rcTwistPub_.publish(twistMsg);
+    }
 
     return res;
 }
@@ -255,6 +295,10 @@ void SmbController::receiveData(void *context) {
     if (!instance->readWheelSpeeds())
       res = false;
 
+    if(!instance->readRCInputs()){
+      std::cout << "readRCInputs failed" << std::endl;
+    };
+
     if ((std::chrono::high_resolution_clock::now() - instance->t_lastVoltageUpdate_).count() > instance->batteryVoltageUpdateInterval_ns_) {
       if (!instance->readBatteryVoltage()){
         std::cout << "readBatteryVoltage failed" << std::endl;
@@ -325,7 +369,7 @@ double SmbController::getVelocity(int motor)
 {
   double velocity;
   acquireMutex(dataMutex_, 0);
-  if(motor == 1)
+  if(motor == 2)
     velocity = leftMotorSpeed_;
   else
     velocity = rightMotorSpeed_;
