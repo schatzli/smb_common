@@ -62,6 +62,7 @@ geometry_msgs::Transform OdometryConversion::fromHomTransform(const Eigen::Matri
 geometry_msgs::Pose OdometryConversion::fromHomTransformToPose(const Eigen::Matrix4d& homTransform) const {
   geometry_msgs::Pose transform;
   Eigen::Vector3d translation = homTransform.block<3, 1>(0, 3);
+  translation[2] = 0;
   tf::pointEigenToMsg(translation, transform.position);
   Eigen::Quaterniond rotation = Eigen::Quaterniond(homTransform.block<3, 3>(0, 0));
   tf::quaternionEigenToMsg(rotation, transform.orientation);
